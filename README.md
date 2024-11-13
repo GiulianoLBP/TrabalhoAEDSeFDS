@@ -3,7 +3,16 @@
 
 Este é o projeto de exemplo para gerenciar tripulantes e aeronaves. A estrutura do projeto é organizada da seguinte maneira:
 
-projeto/ ├── include/ # Diretório contendo arquivos de cabeçalho (.h) │ ├── tripulacao.h # Declaração da struct Tripulacao e suas funções │ └── aeronave.h # Declaração da struct Aeronave e suas funções ├── src/ # Diretório contendo arquivos de implementação (.c) │ ├── tripulacao.c # Implementação das funções da struct Tripulacao │ ├── aeronave.c # Implementação das funções da struct Aeronave │ └── main.c # Função principal (main) ├── Makefile # Arquivo Makefile para facilitar a compilação └── README.md # Este arquivo (instruções sobre o projeto)
+projeto/
+├── include/
+│   ├── tripulacao.h      
+│   ├── aeronave.h        
+├── src/
+│   ├── tripulacao.c      
+│   ├── aeronave.c        
+│   ├── main.c            
+├── Makefile              
+
 
 
 ### Descrição dos Diretórios e Arquivos
