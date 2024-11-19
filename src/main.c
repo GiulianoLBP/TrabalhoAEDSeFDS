@@ -8,6 +8,8 @@
 
 void exibirMenu();
 
+//teste 
+
 
 int main() {
     passageiro **passageiros = NULL;  // Array de ponteiros para struct passageiro
