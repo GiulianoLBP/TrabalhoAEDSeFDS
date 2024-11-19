@@ -8,40 +8,7 @@
 
 void exibirMenu();
 
-// int main() {
-//     passageiro *passageiros[MAX_PASSAGEIROS];  // Array para armazenar os ponteiros dos passageiros
-//     int contador = 0;  // Contador de passageiros cadastrados
-//     int opcao;
 
-//     do {
-//         exibirMenu();
-//         printf("Escolha uma opção: ");
-//         scanf("%d", &opcao);
-//         getchar();  // Limpar o buffer de entrada
-
-//         switch (opcao) {
-//             case 1:
-//                 printf()
-//                 criarPassageiro(passageiros, &contador);
-//                 break;
-//             case 2:
-//                 verificarFidelidadeMenu(passageiros, contador);
-//                 break;
-//             case 0:
-//                 printf("Encerrando o programa.\n");
-//                 break;
-//             default:
-//                 printf("Opção inválida! Tente novamente.\n");
-//         }
-//     } while (opcao != 0);
-
-//     // Liberar memória de todos os passageiros cadastrados
-//     for (int i = 0; i < contador; i++) {
-//         liberarPassageiro(passageiros[i]);
-//     }
-
-//     return 0;
-// }
 int main() {
     passageiro **passageiros = NULL;  // Array de ponteiros para struct passageiro
     int quantidade = 0;                      // Quantidade de passageiros criados
