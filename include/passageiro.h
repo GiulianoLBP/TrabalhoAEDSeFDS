@@ -14,11 +14,9 @@ typedef struct {
 // Declaração das funções associadas ao passageiro
 passageiro* criarPassageiro(int codigo, const char *nome, const char *endereco, const char *telefone, int fidelidade, int pontosFidelidade);
 passageiro** carregarPassageiros(int *quantidade);       // Função para carregar passageiros do arquivo
-void liberarPassageiro(passageiro *p);
 void exibirPassageiro(const passageiro *p);
 passageiro* cadastrarPassageiro();
-void salvarNoArquivo(passageiro *p);                      // Função para salvar um passageiro no arquivo
-// void listarPassageiros(FILE *arquivo);                    // Função para listar passageiros do arquivo
+void salvarNoArquivoPassageiro(passageiro *p);                      // Função para salvar um passageiro no arquivo
 #endif // PASSAGEIRO_H
 
 
