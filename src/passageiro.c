@@ -2,28 +2,66 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>  // Para validacao de caracteres
 
-#define TAM_BUFFER 256  // Buffer temporário para entrada de strings
+#define TAM_BUFFER 256  // Buffer temporario para entrada de strings
+// Função para verificar se o código já existe no arquivo
+int verificarCodigoExistente(int codigo) {
+    int quantidade;
+    passageiro **passageiros = carregarPassageiros(&quantidade);  // Carrega os passageiros do arquivo
+    if (passageiros == NULL) {
+        return 0;  // Nenhum passageiro registrado, o código é válido
+    }
 
-// Função para criar um passageiro
+    // Verifica se o código já existe
+    for (int i = 0; i < quantidade; i++) {
+        if (passageiros[i]->codigo == codigo) {
+            // Libera a memória alocada para os passageiros
+            for (int j = 0; j < quantidade; j++) {
+                free(passageiros[j]);
+            }
+            free(passageiros);
+            return 1;  // Código duplicado
+        }
+    }
+
+    // Libera a memória alocada para os passageiros
+    for (int i = 0; i < quantidade; i++) {
+        free(passageiros[i]);
+    }
+    free(passageiros);
+
+    return 0;  // Código não duplicado
+}
+// Funcao para verificar se uma string e um numero inteiro positivo
+int ehNumeroPositivo(const char *str) {
+    for (int i = 0; str[i] != '\0'; i++) {
+        if (!isdigit((unsigned char)str[i])) {
+            return 1;  // Nao e um numero valido
+        }
+    }
+    return 0;  // E um numero valido
+}
+
+// Funcao para criar um passageiro
 passageiro* criarPassageiro(int codigo, const char *nome, const char *endereco, const char *telefone, int fidelidade, int pontosFidelidade) {
-    passageiro *p = (passageiro*)malloc(sizeof(passageiro));  // Aloca a memória para o struct passageiro
+    passageiro *p = (passageiro*)malloc(sizeof(passageiro));  // Aloca a memoria para o struct passageiro
     if (!p) {
-        perror("Erro ao alocar memória para passageiro");
-        exit(EXIT_FAILURE);  // Caso a alocação falhe, sai do programa
+        perror("Erro ao alocar memoria para passageiro");
+        exit(EXIT_FAILURE);  // Caso a alocacao falhe, sai do programa
     }
 
     p->codigo = codigo;
     
-    // Usa strncpy para copiar as strings, garantindo que o buffer não seja ultrapassado
+    // Usa strncpy para copiar as strings, garantindo que o buffer nao seja ultrapassado
     strncpy(p->nome, nome, sizeof(p->nome) - 1);
-    p->nome[sizeof(p->nome) - 1] = '\0';  // Garante a terminação da string
+    p->nome[sizeof(p->nome) - 1] = '\0';  // Garante a terminacao da string
 
     strncpy(p->endereco, endereco, sizeof(p->endereco) - 1);
-    p->endereco[sizeof(p->endereco) - 1] = '\0';  // Garante a terminação da string
+    p->endereco[sizeof(p->endereco) - 1] = '\0';  // Garante a terminacao da string
 
     strncpy(p->telefone, telefone, sizeof(p->telefone) - 1);
-    p->telefone[sizeof(p->telefone) - 1] = '\0';  // Garante a terminação da string
+    p->telefone[sizeof(p->telefone) - 1] = '\0';  // Garante a terminacao da string
 
     p->fidelidade = fidelidade;
     p->pontosFidelidade = pontosFidelidade;
@@ -36,21 +74,21 @@ void listarPassageiros(FILE *arquivo) {
     rewind(arquivo);
     printf("\n--- Lista de Passageiros ---\n");
     while (fread(&p, sizeof(passageiro), 1, arquivo)) {
-        printf("Código: %d\n", p.codigo);
+        printf("Codigo: %d\n", p.codigo);
         printf("Nome: %s\n", p.nome);
-        printf("Endereço: %s\n", p.endereco);
+        printf("Endereco: %s\n", p.endereco);
         printf("Telefone: %s\n", p.telefone);
-        printf("Fidelidade: %s\n", p.fidelidade ? "Sim" : "Não");
+        printf("Fidelidade: %s\n", p.fidelidade ? "Sim" : "Nao");
         printf("Pontos de Fidelidade: %d\n", p.pontosFidelidade);
         printf("----------------------------\n");
     }
 }
 
-// Função para carregar passageiros do arquivo
+// Funcao para carregar passageiros do arquivo
 passageiro** carregarPassageiros(int *quantidade) {
     FILE *arquivo = fopen("passageiro.dat", "rb");
     if (!arquivo) {
-        perror("Erro ao abrir o arquivo");
+        perror("Erro ao abrir o arquivo carregarPassageiros em passageiros");
         *quantidade = 0;
         return NULL;
     }
@@ -67,7 +105,7 @@ passageiro** carregarPassageiros(int *quantidade) {
 
     passageiro **passageiros = malloc(*quantidade * sizeof(passageiro*));
     if (!passageiros) {
-        perror("Erro ao alocar memória para passageiros");
+        perror("Erro ao alocar memoria para passageiros");
         fclose(arquivo);
         return NULL;
     }
@@ -75,7 +113,7 @@ passageiro** carregarPassageiros(int *quantidade) {
     for (int i = 0; i < *quantidade; i++) {
         passageiros[i] = malloc(sizeof(passageiro));
         if (!passageiros[i]) {
-            perror("Erro ao alocar memória para passageiro");
+            perror("Erro ao alocar memoria para passageiro");
             fclose(arquivo);
             return NULL;
         }
@@ -91,26 +129,35 @@ passageiro** carregarPassageiros(int *quantidade) {
     return passageiros;
 }
 
-void salvarNoArquivo(passageiro *p){
-    // passageiro p;
-    FILE *arquivo = fopen("passageiro.dat", "ab+");  // Abre o arquivo para leitura/escrita, cria se não existir
+void salvarNoArquivoPassageiro(passageiro *p){
+    FILE *arquivo = fopen("passageiro.dat", "ab+");  // Abre o arquivo para leitura/escrita, cria se nao existir
     if (!arquivo) {
-        perror("Erro ao abrir o arquivo");
+        perror("Erro ao abrir o arquivo em salvarNoArquivoPassageiro em passageiros");
     }
-     fwrite(p, sizeof(passageiro), 1, arquivo);
-     printf("\nPESSOA SALVA NO ARQUIVO\n");
+    fwrite(p, sizeof(passageiro), 1, arquivo);
+    printf("\nPESSOA SALVA NO ARQUIVO\n");
 }
 
-// Função para cadastrar um passageiro
+// Funcao para cadastrar um passageiro
 passageiro* cadastrarPassageiro() {
     int codigo, fidelidade, pontosFidelidade;
-    char buffer[TAM_BUFFER]; // Buffer temporário para leitura das strings
+    char buffer[TAM_BUFFER]; // Buffer temporario para leitura das strings
 
-    // Captura os dados do usuário
-    printf("Código do passageiro: ");
-    scanf("%d", &codigo);
-    getchar(); // Limpa o buffer do `scanf`
-
+    // Captura os dados do usuario
+    printf("Codigo do passageiro: ");
+    while (1) {
+        fgets(buffer, TAM_BUFFER, stdin);
+        if (ehNumeroPositivo(buffer)) {
+            codigo = atoi(buffer);
+            // Verifica se o código já existe
+            if (verificarCodigoExistente(codigo)) {
+                printf("Codigo ja existente. Digite outro codigo: ");
+            } else {
+                break;
+            }
+        }
+        printf("Codigo invalido. Digite um numero valido: ");
+    }
     printf("Nome do passageiro: ");
     fgets(buffer, TAM_BUFFER, stdin);
     buffer[strcspn(buffer, "\n")] = '\0'; // Remove o caractere de nova linha
@@ -118,7 +165,7 @@ passageiro* cadastrarPassageiro() {
     strncpy(nome, buffer, sizeof(nome) - 1);
     nome[sizeof(nome) - 1] = '\0'; // Garante que a string seja terminada
 
-    printf("Endereço do passageiro: ");
+    printf("Endereco do passageiro: ");
     fgets(buffer, TAM_BUFFER, stdin);
     buffer[strcspn(buffer, "\n")] = '\0';
     char endereco[40]; // Array fixo de tamanho 40
@@ -132,28 +179,41 @@ passageiro* cadastrarPassageiro() {
     strncpy(telefone, buffer, sizeof(telefone) - 1);
     telefone[sizeof(telefone) - 1] = '\0'; // Garante que a string seja terminada
 
-    printf("Fidelidade (1 para Sim, 0 para Não): ");
-    scanf("%d", &fidelidade);
+    printf("Fidelidade (1 para Sim, 0 para Nao): ");
+    while (1) {
+        scanf("%d", &fidelidade);
+        if (fidelidade == 0 || fidelidade == 1) {
+            break;
+        }
+        printf("Valor invalido. Digite 1 para Sim ou 0 para Nao: ");
+    }
 
     printf("Pontos de fidelidade: ");
-    scanf("%d", &pontosFidelidade);
+    while (1) {
+        scanf("%d", &pontosFidelidade);
+        if (pontosFidelidade >= 0) {
+            break;
+        }
+        printf("Valor invalido. Digite um numero de pontos de fidelidade valido: ");
+    }
 
     // Cria um novo passageiro usando as strings alocadas dinamicamente
     passageiro *novoPassageiro = criarPassageiro(codigo, nome, endereco, telefone, fidelidade, pontosFidelidade);
-    salvarNoArquivo(novoPassageiro);
+    salvarNoArquivoPassageiro(novoPassageiro);
 
     return novoPassageiro;
 }
 
-// Função para exibir informações do passageiro
+// Funcao para exibir informacoes do passageiro
 void exibirPassageiro(const passageiro *p) {
     printf("\n--- Lista de Passageiros ---\n");
     if (p) {
-        printf("Código: %d\n", p->codigo);
+        printf("Codigo: %d\n", p->codigo);
         printf("Nome: %s\n", p->nome);
-        printf("Endereço: %s\n", p->endereco);
+        printf("Endereco: %s\n", p->endereco);
         printf("Telefone: %s\n", p->telefone);
-        printf("Fidelidade: %s\n", p->fidelidade ? "Sim" : "Não");
+        printf("Fidelidade: %s\n", p->fidelidade ? "Sim" : "Nao");
         printf("Pontos de Fidelidade: %d\n", p->pontosFidelidade);
     }
+    printf("----------------------------\n");
 }
