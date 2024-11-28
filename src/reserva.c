@@ -1,15 +1,16 @@
 #include "reserva.h"
 #include "voo.h"
 #include "passageiro.h"
+#include "assento.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 // Função para verificar se o código do passageiro é válido
 int verificarCodigoPassageiro(int codigoPassageiro) {
-    FILE *arquivo = fopen("passageiros.dat", "rb");
+    FILE *arquivo = fopen("passageiro.dat", "rb");
     if (!arquivo) {
-        perror("Erro ao abrir o arquivo de passageiros");
+        perror("Erro ao abrir o arquivo de passageiros em reservas");
         return 0;
     }
 
@@ -25,26 +26,8 @@ int verificarCodigoPassageiro(int codigoPassageiro) {
     return 0; // Código do passageiro não encontrado
 }
 
-// Função para atualizar o status de um assento
-void atualizarStatusAssento(int codigoVoo, int numeroAssento, int status) {
-    FILE *arquivo = fopen("assentos.dat", "rb+");
-    if (!arquivo) {
-        perror("Erro ao abrir o arquivo de assentos");
-        return;
-    }
 
-    assento a;
-    while (fread(&a, sizeof(assento), 1, arquivo)) {
-        if (a.codigoVoo == codigoVoo && a.numero == numeroAssento) {
-            fseek(arquivo, -sizeof(assento), SEEK_CUR);
-            a.status = status;
-            fwrite(&a, sizeof(assento), 1, arquivo);
-            break;
-        }
-    }
 
-    fclose(arquivo);
-}
 // Função para cadastrar uma reserva
 reserva* cadastrarReserva() {
     reserva *r = (reserva*)malloc(sizeof(reserva));
@@ -57,7 +40,11 @@ reserva* cadastrarReserva() {
     do {
         printf("Código do voo: ");
         scanf("%d", &r->codigoVoo);
-
+        if (r->codigoVoo == 0) {
+            printf("Operação cancelada. Você pode realizar outras ações.\n");
+            free(r); // Libera a memória alocada
+            return NULL; // Retorna NULL indicando que a reserva não foi realizada
+        }
         if (!verificarCodigoVooExistente(r->codigoVoo)) {
             printf("Erro: Código do voo inválido! Tente novamente.\n");
         }
@@ -67,67 +54,153 @@ reserva* cadastrarReserva() {
     do {
         printf("Número do assento: ");
         scanf("%d", &r->numeroAssento);
-
-        if (!verificarAssentoDisponivel(r->codigoVoo, r->numeroAssento)) {
+        if (r->numeroAssento == 0) {
+            printf("Operação cancelada. Você pode realizar outras ações.\n");
+            free(r); // Libera a memória alocada
+            return NULL; // Retorna NULL indicando que a reserva não foi realizada
+        }
+        if (verificarAssentoDisponivel(r->codigoVoo, r->numeroAssento)) {
             printf("Erro: Assento ocupado ou inválido! Escolha outro.\n");
         }
-    } while (!verificarAssentoDisponivel(r->codigoVoo, r->numeroAssento));
+    } while (verificarAssentoDisponivel(r->codigoVoo, r->numeroAssento));
 
     // Captura o código do passageiro e valida
     do {
         printf("Código do passageiro: ");
         scanf("%d", &r->codigoPassageiro);
-
+        if (r->codigoPassageiro == 0) {
+            printf("Operação cancelada. Você pode realizar outras ações.\n");
+            free(r); // Libera a memória alocada
+            return NULL; // Retorna NULL indicando que a reserva não foi realizada
+        }
         if (!verificarCodigoPassageiro(r->codigoPassageiro)) {
             printf("Erro: Código do passageiro inválido! Tente novamente.\n");
         }
     } while (!verificarCodigoPassageiro(r->codigoPassageiro));
 
     salvarNoArquivoReserva(r);
-    atualizarStatusAssento(r->codigoVoo, r->numeroAssento, 1); // Marca o assento como ocupado
+    atualizarStatusAssento(r->codigoVoo, r->numeroAssento); // Marca o assento como ocupado
     return r;
 }
 
-// Função para cancelar uma reserva
-void cancelarReserva(int codigoVoo, int numeroAssento) {
-    FILE *arquivo = fopen("reservas.dat", "rb+");
+// Funcao para carregar passageiros do arquivo
+reserva** carregarReservas(int *quantidade) {
+    FILE *arquivo = fopen("reservas.dat", "rb");
     if (!arquivo) {
-        perror("Erro ao abrir o arquivo de reservas");
-        return;
+        perror("Erro ao abrir o arquivo em carregarReservas em reservas");
+        *quantidade = 0;
+        return NULL;
     }
 
-    reserva r;
-    int encontrado = 0;
+    fseek(arquivo, 0, SEEK_END);
+    long tamanhoArquivo = ftell(arquivo);
+    fseek(arquivo, 0, SEEK_SET);
 
-    // Procura a reserva no arquivo
-    while (fread(&r, sizeof(reserva), 1, arquivo)) {
-        if (r.codigoVoo == codigoVoo && r.numeroAssento == numeroAssento) {
-            encontrado = 1;
+    *quantidade = tamanhoArquivo / sizeof(reserva);
+    if (*quantidade == 0) {
+        fclose(arquivo);
+        return NULL;
+    }
 
-            // Remove a reserva (opcional: logicamente, marcando status como inválido)
-            fseek(arquivo, -sizeof(reserva), SEEK_CUR);
-            memset(&r, 0, sizeof(reserva));
-            fwrite(&r, sizeof(reserva), 1, arquivo);
+    reserva **reservas = malloc(*quantidade * sizeof(reserva*));
+    if (!reservas) {
+        perror("Erro ao alocar memoria para reservas");
+        fclose(arquivo);
+        return NULL;
+    }
 
-            // Atualiza o status do assento para livre
-            atualizarStatusAssento(codigoVoo, numeroAssento, 0);
-            printf("Reserva cancelada com sucesso.\n");
+    for (int i = 0; i < *quantidade; i++) {
+        reservas[i] = malloc(sizeof(reserva));
+        if (!reservas[i]) {
+            perror("Erro ao alocar memoria para reserva");
+            fclose(arquivo);
+            return NULL;
+        }
+        size_t bytesLidos = fread(reservas[i], sizeof(reserva), 1, arquivo);
+        if (bytesLidos != 1) {
+            printf("Erro ao ler reserva %d do arquivo\n", i + 1);
+            free(reservas[i]);
+            reservas[i] = NULL;
+        }
+    }
+
+    fclose(arquivo);
+    return reservas;
+}
+
+void reescreverArquivos(reserva **reservas, int quantidadeReservas, assento **assentos, int quantidadeAssentos) {
+    // Apagar o conteúdo dos arquivos anteriores de reservas
+    FILE *fileReservas = fopen("reservas.dat", "wb");
+    if (!fileReservas) {
+        perror("Erro ao abrir o arquivo reservas: em reescreverArquivos de reservas");
+        exit(EXIT_FAILURE);
+    }
+
+    // Escrever as novas reservas no arquivo
+    for (int i = 0; i < quantidadeReservas; i++) {
+        fwrite(reservas[i], sizeof(reserva), 1, fileReservas);
+    }
+
+    fclose(fileReservas);
+
+    // Apagar o conteúdo dos arquivos anteriores de assentos
+    FILE *fileAssentos = fopen("assento.dat", "wb");
+    if (!fileAssentos) {
+        perror("Erro ao abrir o arquivo assentos:em reescreverArquivos de reservas");
+        exit(EXIT_FAILURE);
+    }
+
+    // Escrever os novos assentos no arquivo
+    for (int i = 0; i < quantidadeAssentos; i++) {
+        fwrite(assentos[i], sizeof(assento), 1, fileAssentos);
+    }
+
+    fclose(fileAssentos);
+}
+
+// Função para cancelar uma reserva
+void cancelarReserva(int codigoVoo, int numeroAssento, int codigoPassageiro, reserva ***reservas, int *quantidadeReservas, assento **assentos, int quantidadeAssentos) {
+    int reservaEncontrada = 0;
+
+    // Procurar a reserva correspondente
+    for (int i = 0; i < *quantidadeReservas; i++) {
+        if ((*reservas)[i]->codigoVoo == codigoVoo && (*reservas)[i]->numeroAssento == numeroAssento && (*reservas)[i]->codigoPassageiro == codigoPassageiro) {
+            // Encontrou a reserva
+            reservaEncontrada = 1;
+
+            // Alterar status do assento
+            for (int j = 0; j < quantidadeAssentos; j++) {
+                if (assentos[j]->codigoVoo == codigoVoo && assentos[j]->numero == numeroAssento) {
+                    assentos[j]->status = 0;  // Marca o assento como Livre (status 0)
+                    break;
+                }
+            }
+
+            // Remover a reserva (shiftar as demais para a esquerda)
+            for (int j = i; j < *quantidadeReservas - 1; j++) {
+                (*reservas)[j] = (*reservas)[j + 1];
+            }
+            (*quantidadeReservas)--;
+
+            // Reescrever os arquivos de reservas e assentos
+            reescreverArquivos(*reservas, *quantidadeReservas, assentos, quantidadeAssentos);
+
+            printf("Reserva cancelada com sucesso!\n");
             break;
         }
     }
 
-    if (!encontrado) {
-        printf("Erro: Reserva não encontrada.\n");
+    // Verifica se a reserva foi encontrada
+    if (!reservaEncontrada) {
+        printf("Reserva não encontrada.\n");
     }
-
-    fclose(arquivo);
 }
 
 // Função para salvar a reserva no arquivo
 void salvarNoArquivoReserva(reserva *r) {
     FILE *arquivo = fopen("reservas.dat", "ab+");
     if (!arquivo) {
-        perror("Erro ao abrir o arquivo de reservas");
+        perror("Erro ao abrir o arquivo de reservas em salvarNoArquivoReserva");
         return;
     }
 

@@ -88,7 +88,7 @@ void listarPassageiros(FILE *arquivo) {
 passageiro** carregarPassageiros(int *quantidade) {
     FILE *arquivo = fopen("passageiro.dat", "rb");
     if (!arquivo) {
-        perror("Erro ao abrir o arquivo");
+        perror("Erro ao abrir o arquivo carregarPassageiros em passageiros");
         *quantidade = 0;
         return NULL;
     }
@@ -132,7 +132,7 @@ passageiro** carregarPassageiros(int *quantidade) {
 void salvarNoArquivoPassageiro(passageiro *p){
     FILE *arquivo = fopen("passageiro.dat", "ab+");  // Abre o arquivo para leitura/escrita, cria se nao existir
     if (!arquivo) {
-        perror("Erro ao abrir o arquivo");
+        perror("Erro ao abrir o arquivo em salvarNoArquivoPassageiro em passageiros");
     }
     fwrite(p, sizeof(passageiro), 1, arquivo);
     printf("\nPESSOA SALVA NO ARQUIVO\n");

@@ -11,9 +11,11 @@ typedef struct{
 } assento;
 
 // Funções para assento
+assento* criarAssento(int codigo, int codVoo, int status);
 assento* cadastrarAssento();
 void exibirAssento(const assento *a);
 int verificarAssentoDisponivel(int codigoVoo, int numeroAssento);
+int atualizarStatusAssento(int codigoVoo, int numeroAssento);
 void salvarNoArquivoAssento(assento *a);
 assento** carregarAssentos(int *quantidade);
 

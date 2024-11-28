@@ -10,7 +10,7 @@
 int verificarCodigoTripulacaoExistente(int codigo) {
     FILE *arquivo = fopen("tripulacao.dat", "rb");
     if (!arquivo) {
-        perror("Erro ao abrir o arquivo");
+        perror("Erro ao abrir o arquivo de tripulacao em verificarCodigoTripulacaoExistente");
         return 0;  // Arquivo não existe ou está vazio, código é válido
     }
 
@@ -51,7 +51,7 @@ tripulacao* criarTripulacao(int codigo, const char *nome, const char *telefone, 
 tripulacao** carregarTripulacao(int *quantidade) {
     FILE *arquivo = fopen("tripulacao.dat", "rb");
     if (!arquivo) {
-        perror("Erro ao abrir o arquivo de tripulação");
+        perror("Erro ao abrir o arquivo de tripulação em carregarTripulacao");
         *quantidade = 0;
         return NULL;
     }
@@ -95,7 +95,7 @@ tripulacao** carregarTripulacao(int *quantidade) {
 void salvarNoArquivoTripulacao(tripulacao *t) {
     FILE *arquivo = fopen("tripulacao.dat", "ab+");  // Abre o arquivo para leitura/escrita, cria se não existir
     if (!arquivo) {
-        perror("Erro ao abrir o arquivo de tripulação");
+        perror("Erro ao abrir o arquivo de tripulação em salvarNoArquivoTripulacao");
     }
 
     fwrite(t, sizeof(tripulacao), 1, arquivo);  // Grava a estrutura tripulacao no arquivo

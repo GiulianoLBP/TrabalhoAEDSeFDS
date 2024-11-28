@@ -8,7 +8,7 @@
 int verificarCodigoVoo(int codigoVoo) {
     FILE *arquivo = fopen("voos.dat", "rb");
     if (!arquivo) {
-        perror("Erro ao abrir o arquivo de voos");
+        perror("Erro ao abrir o arquivo: voos em verificarCodigoVoo");
         return 0; // Arquivo não encontrado ou vazio
     }
 
@@ -109,12 +109,96 @@ int verificarAssentoDisponivel(int codigoVoo, int numeroAssento) {
     fclose(arquivo);
     return 1; // Assento disponível
 }
+int atualizarStatusAssento(int codigoVoo, int numeroAssento) {
+    FILE *arquivo = fopen("assentos.dat", "r+b"); // Abrir arquivo para leitura e escrita binária
+    if (!arquivo) {
+        return -1; // Erro ao abrir o arquivo
+    }
+
+    assento a;
+    int encontrado = 0;
+    
+    // Verifica se o assento já existe no arquivo
+    while (fread(&a, sizeof(assento), 1, arquivo)) {
+        if (a.codigoVoo == codigoVoo && a.numero == numeroAssento) {
+            encontrado = 1;
+            if (a.status == 1) {  // Se o assento estiver ocupado
+                fclose(arquivo);
+                return 0; // Assento ocupado
+            } else {  // Se o assento estiver livre
+                // Alterar o status para ocupado
+                a.status = 1;
+                fseek(arquivo, -sizeof(assento), SEEK_CUR); // Volta para o início do assento encontrado
+                fwrite(&a, sizeof(assento), 1, arquivo); // Grava o novo status
+                fclose(arquivo);
+                return 1; // Assento agora ocupado
+            }
+        }
+    }
+
+    // Se o assento não foi encontrado, cria um novo e o adiciona
+    a.codigoVoo = codigoVoo;
+    a.numero = numeroAssento;
+    a.status = 1;  // Marca como ocupado
+    
+    // Posiciona no final do arquivo para adicionar um novo assento
+    fseek(arquivo, 0, SEEK_END);
+    fwrite(&a, sizeof(assento), 1, arquivo); // Escreve o novo assento como ocupado
+    fclose(arquivo);
+    
+    return 1; // Assento não existia e foi adicionado como ocupado
+}
+
+// Funcao para carregar passageiros do arquivo
+assento** carregarAssentos(int *quantidade) {
+    FILE *arquivo = fopen("assentos.dat", "rb");
+    if (!arquivo) {
+        perror("Erro ao abrir o arquivo:voos em carregarAssentos");
+        *quantidade = 0;
+        return NULL;
+    }
+
+    fseek(arquivo, 0, SEEK_END);
+    long tamanhoArquivo = ftell(arquivo);
+    fseek(arquivo, 0, SEEK_SET);
+
+    *quantidade = tamanhoArquivo / sizeof(assento);
+    if (*quantidade == 0) {
+        fclose(arquivo);
+        return NULL;
+    }
+
+    assento **assentos = malloc(*quantidade * sizeof(assento*));
+    if (!assentos) {
+        perror("Erro ao alocar memoria para assentos");
+        fclose(arquivo);
+        return NULL;
+    }
+
+    for (int i = 0; i < *quantidade; i++) {
+        assentos[i] = malloc(sizeof(assento));
+        if (!assentos[i]) {
+            perror("Erro ao alocar memoria para assento");
+            fclose(arquivo);
+            return NULL;
+        }
+        size_t bytesLidos = fread(assentos[i], sizeof(assento), 1, arquivo);
+        if (bytesLidos != 1) {
+            printf("Erro ao ler assento %d do arquivo\n", i + 1);
+            free(assentos[i]);
+            assentos[i] = NULL;
+        }
+    }
+
+    fclose(arquivo);
+    return assentos;
+}
 
 // Função para salvar o assento no arquivo
 void salvarNoArquivoAssento(assento *a) {
     FILE *arquivo = fopen("assentos.dat", "ab+");
     if (!arquivo) {
-        perror("Erro ao abrir o arquivo de assentos");
+        perror("Erro ao abrir o arquivo de assentos em salvarNoArquivoAssento");
         return;
     }
 

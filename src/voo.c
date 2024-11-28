@@ -6,7 +6,7 @@
 int verificarCodigoVooExistente(int codigo) {
     FILE *arquivo = fopen("voos.dat", "rb");
     if (!arquivo) {
-        perror("Erro ao abrir o arquivo de voos");
+        perror("Erro ao abrir o arquivo de voos em verificarCodigoVooExistente");
         return 0;  // Arquivo não existe ou está vazio, código é válido
     }
 
@@ -26,7 +26,7 @@ int verificarCodigoVooExistente(int codigo) {
 int verificarCodigoTripulanteExistente(int codigo) {
     FILE *arquivo = fopen("tripulacao.dat", "rb");
     if (!arquivo) {
-        perror("Erro ao abrir o arquivo de tripulação");
+        perror("Erro ao abrir o arquivo de tripulação em verificarCodigoTripulanteExistente(voos)");
         return 0; // Arquivo não encontrado
     }
 
@@ -78,7 +78,7 @@ voo* cadastrarVoo() {
 
     if (v->status == 1) { // Validar tripulação somente se o voo for ativo
         do {
-            printf("Código do piloto: ");
+            printf("Código do piloto: sex");
             scanf("%d", &v->codigoPiloto);
             if (!verificarCodigoTripulanteExistente(v->codigoPiloto)) {
                 printf("Erro: Código do piloto inválido! Tente novamente.\n");
@@ -86,15 +86,15 @@ voo* cadastrarVoo() {
         } while (!verificarCodigoTripulanteExistente(v->codigoPiloto));
 
         do {
-            printf("Código do copiloto: ");
+            printf("Código do copiloto: sex");
             scanf("%d", &v->codigoCopiloto);
-            if (!verificarCodigoTripulanteExistente(v->codigoCopiloto)) {
+            if (!(v->codigoCopiloto)) {
                 printf("Erro: Código do copiloto inválido! Tente novamente.\n");
             }
         } while (!verificarCodigoTripulanteExistente(v->codigoCopiloto));
 
         do {
-            printf("Código do comissário: ");
+            printf("Código do comissário: sex");
             scanf("%d", &v->codigoComissario);
             if (!verificarCodigoTripulanteExistente(v->codigoComissario)) {
                 printf("Erro: Código do comissário inválido! Tente novamente.\n");
@@ -137,12 +137,13 @@ voo* cadastrarVoo() {
 void salvarNoArquivoVoo(voo *v) {
     FILE *arquivo = fopen("voos.dat", "ab+");
     if (!arquivo) {
-        perror("Erro ao abrir o arquivo de voos");
+        perror("Erro ao abrir o arquivo de voos em salvarNoArquivoVoo");
         return;
     }
 
     fwrite(v, sizeof(voo), 1, arquivo);
     fclose(arquivo);
+    printf("salvo no arquvio de voos xD");
 }
 
 void exibirVoo(const voo *v) {
@@ -161,3 +162,57 @@ void exibirVoo(const voo *v) {
         printf("Tarifa: %.2f\n", v->tarifa);
     }
 }
+
+// Funcao para carregar passageiros do arquivo
+voo** carregarVoos(int *quantidade) {
+    FILE *arquivo = fopen("voos.dat", "rb");
+    if (!arquivo) {
+        perror("Erro ao abrir o arquivo de voos em carregarVoos");
+        *quantidade = 0;
+        return NULL;
+    }
+
+    fseek(arquivo, 0, SEEK_END);
+    long tamanhoArquivo = ftell(arquivo);
+    fseek(arquivo, 0, SEEK_SET);
+
+    *quantidade = tamanhoArquivo / sizeof(voo);
+    if (*quantidade == 0) {
+        fclose(arquivo);
+        return NULL;
+    }
+
+    voo **voos = malloc(*quantidade * sizeof(voo*));
+    if (!voos) {
+        perror("Erro ao alocar memoria para voos");
+        fclose(arquivo);
+        return NULL;
+    }
+
+    for (int i = 0; i < *quantidade; i++) {
+        voos[i] = malloc(sizeof(voo));
+        if (!voos[i]) {
+            perror("Erro ao alocar memoria para voo");
+            fclose(arquivo);
+            return NULL;
+        }
+        size_t bytesLidos = fread(voos[i], sizeof(voo), 1, arquivo);
+        if (bytesLidos != 1) {
+            printf("Erro ao ler voo %d do arquivo\n", i + 1);
+            free(voos[i]);
+            voos[i] = NULL;
+        }
+    }
+
+    fclose(arquivo);
+    return voos;
+}
+//OI BEATRIX, basicamente fiz umas condiçoes para se o voo tiver status ativo ele TEM QUE TER 
+//piloto e copiloto, a outra parte da condiçao e basicamente verificar se esse piloto e copiloto existe
+//alem disso se o status for inativo ou ela cadastra como 0 vulgo nao tem copiloto e piloto
+// ou ela cadastra um valido para nao dar problemas futuros
+//com relaçao a horario nao coloquei nenhuma restriçao porque ia ficar grande
+//e a outra parte
+
+// descobri um bug que nao sei porque ta rolando mas to conseguindo cadastrar voo com um codigo = 2 pro piloto
+// no tengo a menor ideia do porque
