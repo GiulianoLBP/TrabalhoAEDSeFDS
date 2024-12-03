@@ -180,3 +180,24 @@ tripulacao* cadastrarTripulacao() {
 
     return novaTripulacao;
 }
+
+
+void pesquisarTripulante(int quantidadeTripulacao, tripulacao **tripulantes) {
+    char entrada[50];
+    printf("Escreva o codigo ou o nome do Tripulante: ");
+    scanf("%s", entrada);
+
+    int encontrado = 0;
+    for (int i = 0; i < quantidadeTripulacao; i++) {
+        // Verifica se o código (como número) ou o nome (como string) corresponde
+        if (atoi(entrada) == tripulantes[i]->codigo || strcmp(entrada, tripulantes[i]->nome) == 0) {
+            exibirTripulacao(tripulantes[i]); // Exibe os detalhes do Tripulante
+            encontrado = 1;
+            break;
+        }
+    }
+
+    if (!encontrado) {
+        printf("Tripulante não encontrado.\n");
+    }
+}

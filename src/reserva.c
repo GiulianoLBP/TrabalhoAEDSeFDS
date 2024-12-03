@@ -128,6 +128,17 @@ reserva** carregarReservas(int *quantidade) {
     return reservas;
 }
 
+void exibirTodosAssentos(assento **assentos, int quantidadeAssentos) {
+    if (quantidadeAssentos == 0) {
+        printf("Nenhum assento disponível para exibição.\n");
+        return;
+    }
+
+    for (int i = 0; i < quantidadeAssentos; i++) {
+        exibirAssento(assentos[i]);
+    }
+}
+
 void reescreverArquivos(reserva **reservas, int quantidadeReservas, assento **assentos, int quantidadeAssentos) {
     // Apagar o conteúdo dos arquivos anteriores de reservas
     FILE *fileReservas = fopen("reservas.dat", "wb");
@@ -142,9 +153,9 @@ void reescreverArquivos(reserva **reservas, int quantidadeReservas, assento **as
     }
 
     fclose(fileReservas);
-
+    exibirTodosAssentos(assentos, quantidadeAssentos);
     // Apagar o conteúdo dos arquivos anteriores de assentos
-    FILE *fileAssentos = fopen("assento.dat", "wb");
+    FILE *fileAssentos = fopen("assentos.dat", "wb");
     if (!fileAssentos) {
         perror("Erro ao abrir o arquivo assentos:em reescreverArquivos de reservas");
         exit(EXIT_FAILURE);
@@ -154,12 +165,13 @@ void reescreverArquivos(reserva **reservas, int quantidadeReservas, assento **as
     for (int i = 0; i < quantidadeAssentos; i++) {
         fwrite(assentos[i], sizeof(assento), 1, fileAssentos);
     }
+    
 
     fclose(fileAssentos);
 }
 
 // Função para cancelar uma reserva
-void cancelarReserva(int codigoVoo, int numeroAssento, int codigoPassageiro, reserva ***reservas, int *quantidadeReservas, assento **assentos, int quantidadeAssentos) {
+void cancelarReserva(int codigoVoo, int numeroAssento, int codigoPassageiro, reserva ***reservas, int *quantidadeReservas, assento ***assentos, int *quantidadeAssentos) {
     int reservaEncontrada = 0;
 
     // Procurar a reserva correspondente
@@ -169,9 +181,10 @@ void cancelarReserva(int codigoVoo, int numeroAssento, int codigoPassageiro, res
             reservaEncontrada = 1;
 
             // Alterar status do assento
-            for (int j = 0; j < quantidadeAssentos; j++) {
-                if (assentos[j]->codigoVoo == codigoVoo && assentos[j]->numero == numeroAssento) {
-                    assentos[j]->status = 0;  // Marca o assento como Livre (status 0)
+            for (int j = 0; j < *quantidadeAssentos; j++) {
+                if ((*assentos)[j]->codigoVoo == codigoVoo && (*assentos)[j]->numero == numeroAssento) {
+                    (*assentos)[j]->status = 0;  // Marca o assento como Livre (status 0)
+                    printf("teste: codVoo %d numAssen%d o que foi achado foi %d %d STATUS: %d\n",codigoVoo,numeroAssento,(*assentos)[j]->codigoVoo,(*assentos)[j]->numero,(*assentos)[j]->status);
                     break;
                 }
             }
@@ -183,7 +196,7 @@ void cancelarReserva(int codigoVoo, int numeroAssento, int codigoPassageiro, res
             (*quantidadeReservas)--;
 
             // Reescrever os arquivos de reservas e assentos
-            reescreverArquivos(*reservas, *quantidadeReservas, assentos, quantidadeAssentos);
+            reescreverArquivos(*reservas, *quantidadeReservas, *assentos, *quantidadeAssentos);
 
             printf("Reserva cancelada com sucesso!\n");
             break;

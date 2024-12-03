@@ -17,6 +17,9 @@ passageiro** carregarPassageiros(int *quantidade);       // Função para carreg
 void exibirPassageiro(const passageiro *p);
 passageiro* cadastrarPassageiro();
 void salvarNoArquivoPassageiro(passageiro *p);                      // Função para salvar um passageiro no arquivo
+void pesquisarPassageiro(int quantidadePassageiros, passageiro **passageiros);
+void passageiroFidelidade(int codigo,passageiro ***passageiros,int quantidadePassageiros,int fidelidade);
+void exibirFidelidade(int quantidadePassageiros, passageiro **passageiros);
 #endif // PASSAGEIRO_H
 
 

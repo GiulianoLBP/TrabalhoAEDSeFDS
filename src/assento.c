@@ -212,7 +212,7 @@ void exibirAssento(const assento *a) {
         printf("\n--- Informações do Assento ---\n");
         printf("Número: %d\n", a->numero);
         printf("Código do voo: %d\n", a->codigoVoo);
-        printf("Status: %s\n", a->status == 1 ? "Ocupado" : "Livre");
+        printf("Status: %d\n", a->status );//== 1 ? "Ocupado" : "Livre"
     }
 }
 

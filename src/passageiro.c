@@ -217,3 +217,61 @@ void exibirPassageiro(const passageiro *p) {
     }
     printf("----------------------------\n");
 }
+
+void pesquisarPassageiro(int quantidadePassageiros, passageiro **passageiros) {
+    char entrada[50];
+    printf("Escreva o codigo ou o nome do passageiro: ");
+    scanf("%s", entrada);
+
+    int encontrado = 0;
+    for (int i = 0; i < quantidadePassageiros; i++) {
+        // Verifica se o código (como número) ou o nome (como string) corresponde
+        if (atoi(entrada) == passageiros[i]->codigo || strcmp(entrada, passageiros[i]->nome) == 0) {
+            exibirPassageiro(passageiros[i]); // Exibe os detalhes do passageiro
+            encontrado = 1;
+            break;
+        }
+    }
+
+    if (!encontrado) {
+        printf("Passageiro não encontrado.\n");
+    }
+}
+
+void passageiroFidelidade(int codigo,passageiro ***passageiros,int quantidadePassageiros,int fidelidade){
+    for (int i = 0; i < quantidadePassageiros; i++) {
+        if (codigo == (*passageiros)[i]->codigo) {
+            if(fidelidade>0){
+
+            (*passageiros)[i]->fidelidade = 1;
+            (*passageiros)[i]->pontosFidelidade +=10; 
+            break;
+            }
+            else{
+            (*passageiros)[i]->pontosFidelidade -=10;
+            if((*passageiros)[i]->pontosFidelidade == 0){
+                (*passageiros)[i]->fidelidade = 0;
+            } 
+            }
+        }
+    }
+}
+
+void exibirFidelidade(int quantidadePassageiros, passageiro **passageiros) {
+    char entrada[50];
+    printf("Escreva o codigo ou o nome do passageiro: \n");
+    scanf("%s", entrada);
+
+    int encontrado = 0;
+    for (int i = 0; i < quantidadePassageiros; i++) {
+        // Verifica se o código (como número) ou o nome (como string) corresponde
+        if (atoi(entrada) == passageiros[i]->codigo || strcmp(entrada, passageiros[i]->nome) == 0) {
+            printf("O passageiro %s tem fidelidade: %d\n",passageiros[i]->nome,passageiros[i]->pontosFidelidade);
+            break;
+        }
+    }
+
+    if (!encontrado) {
+        printf("Passageiro não encontrado.\n");
+    }
+}
