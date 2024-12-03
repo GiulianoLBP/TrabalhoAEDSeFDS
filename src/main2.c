@@ -178,7 +178,7 @@ int main() {
             case 11: {
                 // Cancelar Reserva
                 int codigoVoo,numeroAssento,codigoPassageiro;
-                printf("Informe o código da reserva a ser cancelada: ");
+                printf("Informe o código de voo, numero do assento e o codigo do passageiro \n ");
                 scanf("%d %d %d", &codigoVoo,&numeroAssento,&codigoPassageiro);
                 cancelarReserva(codigoVoo, numeroAssento, codigoPassageiro, &reservas, &quantidadeReservas, &assentos, &quantidadeAssentos);
                 assentos = carregarAssentos(&quantidadeAssentos);
