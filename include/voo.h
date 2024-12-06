@@ -22,6 +22,7 @@ typedef struct {
 } voo;
 
 // Funções para voo
+voo* criarVoo(int codigo, int codigoPilot, int codigoCopilot, int codigoComissario, int status, float tarifa, char *data, char *hora, char *origem, char *destino);
 voo* cadastrarVoo();
 void exibirVoo(const voo *v);
 int verificarCodigoVooExistente(int codigo);

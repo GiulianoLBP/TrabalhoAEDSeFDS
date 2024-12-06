@@ -35,4 +35,6 @@ tripulacao** carregarTripulacao(int *quantidade);
 // Função para salvar um membro da tripulação no arquivo
 void salvarNoArquivoTripulacao(tripulacao *t);
 
+void pesquisarTripulante(int quantidadeTripulacao, tripulacao **tripulantes);
+
 #endif // TRIPULACAO_H

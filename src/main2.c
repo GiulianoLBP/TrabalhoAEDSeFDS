@@ -20,6 +20,9 @@ void exibirMenu() {
     printf("9. Exibir Assentos\n");
     printf("10. Exibir Reservas\n");
     printf("11. Cancelar Reserva\n");
+    printf("12. Pesquisar Passageiro\n");
+    printf("13. Pesquisar Tripulante\n");
+    printf("14. Exibir Fidelidade\n");
     printf("0. Sair\n");
 }
 
@@ -127,7 +130,8 @@ int main() {
                 }
                 reservas[quantidadeReservas] = novaReserva;
                 quantidadeReservas++;
-
+                printf("%d",novaReserva->codigoPassageiro);
+                passageiroFidelidade(novaReserva->codigoPassageiro,&passageiros,quantidadePassageiros,1);
                 printf("Reserva realizada com sucesso!\n");
                 break;
             }
@@ -174,11 +178,27 @@ int main() {
             case 11: {
                 // Cancelar Reserva
                 int codigoVoo,numeroAssento,codigoPassageiro;
-                printf("Informe o código da reserva a ser cancelada: ");
+                printf("Informe o código de voo, numero do assento e o codigo do passageiro \n ");
                 scanf("%d %d %d", &codigoVoo,&numeroAssento,&codigoPassageiro);
-                cancelarReserva(codigoVoo, numeroAssento, codigoPassageiro, &reservas, &quantidadeReservas, assentos, quantidadeAssentos);
+                cancelarReserva(codigoVoo, numeroAssento, codigoPassageiro, &reservas, &quantidadeReservas, &assentos, &quantidadeAssentos);
                 assentos = carregarAssentos(&quantidadeAssentos);
                 reservas = carregarReservas(&quantidadeReservas);
+                passageiroFidelidade(codigoPassageiro,&passageiros,quantidadePassageiros,0);
+                break;
+            }
+            case 12:{
+                //Pesquisar passageiro
+                pesquisarPassageiro(quantidadePassageiros,passageiros);
+                break;
+            }
+            case 13:{
+                //Pesquisar tripulacao
+                pesquisarTripulante(quantidadeTripulacao,tripulantes);
+                break;
+            }
+            case 14:{
+                //Pesquisar tripulacao
+                exibirFidelidade(quantidadePassageiros,passageiros);
                 break;
             }
             case 0:

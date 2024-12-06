@@ -116,12 +116,12 @@ int atualizarStatusAssento(int codigoVoo, int numeroAssento) {
     }
 
     assento a;
-    int encontrado = 0;
+
     
     // Verifica se o assento já existe no arquivo
     while (fread(&a, sizeof(assento), 1, arquivo)) {
         if (a.codigoVoo == codigoVoo && a.numero == numeroAssento) {
-            encontrado = 1;
+
             if (a.status == 1) {  // Se o assento estiver ocupado
                 fclose(arquivo);
                 return 0; // Assento ocupado
@@ -212,7 +212,7 @@ void exibirAssento(const assento *a) {
         printf("\n--- Informações do Assento ---\n");
         printf("Número: %d\n", a->numero);
         printf("Código do voo: %d\n", a->codigoVoo);
-        printf("Status: %s\n", a->status == 1 ? "Ocupado" : "Livre");
+        printf("Status: %d\n", a->status );//== 1 ? "Ocupado" : "Livre"
     }
 }
 
