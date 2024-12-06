@@ -84,8 +84,14 @@ assento* cadastrarAssento() {
         return NULL;
     }
 
-    printf("Status (1 - Ocupado, 0 - Livre): ");
-    scanf("%d", &a->status);
+    do {
+        printf("Status (1 - Ocupado, 0 - Livre): ");
+        scanf("%d", &a->status);
+        if (a->status != 0 && a->status != 1) {
+            printf("Erro: O status deve ser 1 (Ocupado) ou 0 (Livre).\n");
+        }
+    } while (a->status != 0 && a->status != 1);
+
 
     salvarNoArquivoAssento(a);
     return a;

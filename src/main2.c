@@ -6,6 +6,8 @@
 #include "assento.h"
 #include "reserva.h"
 
+#define MAX_INPUT 10
+
 // Função que exibe o menu
 void exibirMenu() {
     printf("\n===== Menu =====\n");
@@ -24,6 +26,22 @@ void exibirMenu() {
     printf("13. Pesquisar Tripulante\n");
     printf("14. Exibir Fidelidade\n");
     printf("0. Sair\n");
+}
+
+// Função que valida e converte a entrada para número
+int obterOpcao() {
+    char entrada[MAX_INPUT];
+    int opcao;
+
+    // Lê a entrada como string
+    fgets(entrada, MAX_INPUT, stdin);
+
+    // Tenta converter a string para número
+    if (sscanf(entrada, "%d", &opcao) != 1) {
+        return -1; // Se não for um número válido, retorna -1
+    }
+
+    return opcao;
 }
 
 int main() {
@@ -50,8 +68,12 @@ int main() {
     do {
         exibirMenu();
         printf("Escolha uma opção: ");
-        scanf("%d", &opcao);
-        getchar(); // Limpa o buffer de entrada
+        opcao = obterOpcao(); // Obtemos a opção através de nossa função
+
+        // Verifica se a entrada está fora do intervalo desejado
+        if (opcao < 0 || opcao > 14) {
+            opcao = 15;  // Caso a opção esteja fora do intervalo 0-14
+        }
 
         switch (opcao) {
             case 1: {
@@ -200,6 +222,11 @@ int main() {
                 //Pesquisar tripulacao
                 exibirFidelidade(quantidadePassageiros,passageiros);
                 break;
+            }
+            case 15: {
+            // Caso opção inválida
+            printf("Opção inválida! Escolha uma opção de 0 a 14.\n");
+            break;
             }
             case 0:
                 printf("Saindo...\n");

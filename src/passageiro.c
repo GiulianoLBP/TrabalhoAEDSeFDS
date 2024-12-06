@@ -141,9 +141,9 @@ void salvarNoArquivoPassageiro(passageiro *p){
 // Funcao para cadastrar um passageiro
 passageiro* cadastrarPassageiro() {
     int codigo, fidelidade, pontosFidelidade;
-    char buffer[TAM_BUFFER]; // Buffer temporario para leitura das strings
+    char buffer[TAM_BUFFER]; // Buffer temporário para leitura das strings
 
-    // Captura os dados do usuario
+    // Captura os dados do usuário
     printf("Codigo do passageiro: ");
     while (1) {
         fgets(buffer, TAM_BUFFER, stdin);
@@ -151,16 +151,23 @@ passageiro* cadastrarPassageiro() {
             codigo = atoi(buffer);
             // Verifica se o código já existe
             if (verificarCodigoExistente(codigo)) {
-                printf("Codigo ja existente. Digite outro codigo: ");
+                printf("Codigo ja existente. Retornando ao menu inicial...\n");
+                return NULL;
             } else {
                 break;
             }
         }
-        printf("Codigo invalido. Digite um numero valido: ");
+        printf("Codigo invalido. Deve ser um numero positivo e unico. Retornando ao menu inicial...\n");
+        return NULL;
     }
+
     printf("Nome do passageiro: ");
     fgets(buffer, TAM_BUFFER, stdin);
     buffer[strcspn(buffer, "\n")] = '\0'; // Remove o caractere de nova linha
+    if (strlen(buffer) < 1 || strlen(buffer) > 40) {
+        printf("Nome invalido. Deve ter entre 1 e 40 caracteres. Retornando ao menu inicial...\n");
+        return NULL;
+    }
     char nome[40]; // Array fixo de tamanho 40
     strncpy(nome, buffer, sizeof(nome) - 1);
     nome[sizeof(nome) - 1] = '\0'; // Garante que a string seja terminada
@@ -168,6 +175,10 @@ passageiro* cadastrarPassageiro() {
     printf("Endereco do passageiro: ");
     fgets(buffer, TAM_BUFFER, stdin);
     buffer[strcspn(buffer, "\n")] = '\0';
+    if (strlen(buffer) < 1 || strlen(buffer) > 40) {
+        printf("Endereco invalido. Deve ter entre 1 e 40 caracteres. Retornando ao menu inicial...\n");
+        return NULL;
+    }
     char endereco[40]; // Array fixo de tamanho 40
     strncpy(endereco, buffer, sizeof(endereco) - 1);
     endereco[sizeof(endereco) - 1] = '\0'; // Garante que a string seja terminada
@@ -175,26 +186,34 @@ passageiro* cadastrarPassageiro() {
     printf("Telefone do passageiro: ");
     fgets(buffer, TAM_BUFFER, stdin);
     buffer[strcspn(buffer, "\n")] = '\0';
+    if (strlen(buffer) < 1 || strlen(buffer) > 40) {
+        printf("Telefone invalido. Deve ter entre 1 e 40 caracteres. Retornando ao menu inicial...\n");
+        return NULL;
+    }
     char telefone[40]; // Array fixo de tamanho 40
     strncpy(telefone, buffer, sizeof(telefone) - 1);
     telefone[sizeof(telefone) - 1] = '\0'; // Garante que a string seja terminada
 
     printf("Fidelidade (1 para Sim, 0 para Nao): ");
     while (1) {
-        scanf("%d", &fidelidade);
-        if (fidelidade == 0 || fidelidade == 1) {
-            break;
+        if (scanf("%d", &fidelidade) != 1 || (fidelidade != 0 && fidelidade != 1)) {
+            printf("Entrada invalida. Digite 1 para Sim ou 0 para Nao. Retornando ao menu inicial...\n");
+            return NULL;
         }
-        printf("Valor invalido. Digite 1 para Sim ou 0 para Nao: ");
+        break;
     }
 
-    printf("Pontos de fidelidade: ");
-    while (1) {
-        scanf("%d", &pontosFidelidade);
-        if (pontosFidelidade >= 0) {
+    if (fidelidade == 0) {
+        pontosFidelidade = 0;
+    } else {
+        printf("Pontos de fidelidade: ");
+        while (1) {
+            if (scanf("%d", &pontosFidelidade) != 1 || pontosFidelidade < 0) {
+                printf("Entrada invalida. Digite um numero de pontos de fidelidade valido. Retornando ao menu inicial...\n");
+                return NULL;
+            }
             break;
         }
-        printf("Valor invalido. Digite um numero de pontos de fidelidade valido: ");
     }
 
     // Cria um novo passageiro usando as strings alocadas dinamicamente
@@ -203,6 +222,7 @@ passageiro* cadastrarPassageiro() {
 
     return novoPassageiro;
 }
+
 
 // Funcao para exibir informacoes do passageiro
 void exibirPassageiro(const passageiro *p) {
