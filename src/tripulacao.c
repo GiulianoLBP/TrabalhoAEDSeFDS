@@ -26,6 +26,15 @@ int verificarCodigoTripulacaoExistente(int codigo) {
     return 0;  // Código não duplicado
 }
 
+int ehNumeroPositivoT(const char *str) {
+    for (int i = 0; str[i] != '\0'; i++) {
+        if (!isdigit((unsigned char)str[i])) {
+            return 1;  // Nao e um numero valido
+        }
+    }
+    return 0;  // E um numero valido
+}
+
 // Função para criar um novo membro da tripulação
 tripulacao* criarTripulacao(int codigo, const char *nome, const char *telefone, const int cargo) {
     tripulacao *t = (tripulacao*)malloc(sizeof(tripulacao));
@@ -132,45 +141,55 @@ void exibirTripulacao(const tripulacao *t) {
 // Função para cadastrar um novo membro da tripulação
 tripulacao* cadastrarTripulacao() {
     int codigo, cargo;
-    char buffer[TAM_BUFFER];  // Buffer temporário para leitura das strings
+    char buffer[TAM_BUFFER]; // Buffer temporário para leitura das strings
 
     // Captura os dados do usuário
     printf("Código do membro da tripulação: ");
     while (1) {
         fgets(buffer, TAM_BUFFER, stdin);
-        if (isdigit((unsigned char)buffer[0])) {
+        if (ehNumeroPositivoT(buffer)) { // Valida se é um número positivo
             codigo = atoi(buffer);
             // Verifica se o código já existe
             if (verificarCodigoTripulacaoExistente(codigo)) {
-                printf("Código já existente. Digite outro código: ");
+                printf("Código já existente. Retornando ao menu inicial...\n");
+                return NULL;
             } else {
                 break;
             }
         }
-        printf("Código inválido. Digite um número válido: ");
+        printf("Código inválido. Deve ser um número positivo e único. Retornando ao menu inicial...\n");
+        return NULL;
     }
 
     printf("Nome do membro da tripulação: ");
     fgets(buffer, TAM_BUFFER, stdin);
-    buffer[strcspn(buffer, "\n")] = '\0';  // Remove o caractere de nova linha
-    char nome[40];  // Array fixo de tamanho 40
+    buffer[strcspn(buffer, "\n")] = '\0'; // Remove o caractere de nova linha
+    if (strlen(buffer) < 1 || strlen(buffer) > 40) {
+        printf("Nome inválido. Deve ter entre 1 e 40 caracteres. Retornando ao menu inicial...\n");
+        return NULL;
+    }
+    char nome[40]; // Array fixo de tamanho 40
     strncpy(nome, buffer, sizeof(nome) - 1);
-    nome[sizeof(nome) - 1] = '\0';  // Garante que a string seja terminada
+    nome[sizeof(nome) - 1] = '\0'; // Garante que a string seja terminada
 
     printf("Telefone do membro da tripulação: ");
     fgets(buffer, TAM_BUFFER, stdin);
     buffer[strcspn(buffer, "\n")] = '\0';
-    char telefone[40];  // Array fixo de tamanho 40
+    if (strlen(buffer) < 1 || strlen(buffer) > 40) {
+        printf("Telefone inválido. Deve ter entre 1 e 40 caracteres. Retornando ao menu inicial...\n");
+        return NULL;
+    }
+    char telefone[40]; // Array fixo de tamanho 40
     strncpy(telefone, buffer, sizeof(telefone) - 1);
-    telefone[sizeof(telefone) - 1] = '\0';  // Garante que a string seja terminada
+    telefone[sizeof(telefone) - 1] = '\0'; // Garante que a string seja terminada
 
     printf("Cargo (1 - Piloto, 2 - Copiloto, 3 - Comissário): ");
     while (1) {
-        scanf("%d", &cargo);
-        if (cargo >= 1 && cargo <= 3) {
-            break;
+        if (scanf("%d", &cargo) != 1 || cargo < 1 || cargo > 3) {
+            printf("Valor inválido. Digite 1 para Piloto, 2 para Copiloto ou 3 para Comissário. Retornando ao menu inicial...\n");
+            return NULL;
         }
-        printf("Valor inválido. Digite 1 para Piloto, 2 para Copiloto ou 3 para Comissário: ");
+        break;
     }
 
     // Cria um novo membro da tripulação usando os dados fornecidos

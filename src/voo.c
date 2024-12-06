@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+#include <stdbool.h>
 
 int verificarCodigoVooExistente(int codigo) {
     FILE *arquivo = fopen("voos.dat", "rb");
@@ -42,33 +44,83 @@ int verificarCodigoTripulanteExistente(int codigo) {
     return 0; // Código não encontrado
 }
 
+bool validarData(const char* data) {
+    int dia, mes, ano;
+    if (sscanf(data, "%d/%d/%d", &dia, &mes, &ano) != 3) return false;
+    if (dia < 1 || dia > 31 || mes < 1 || mes > 12 || ano < 1) return false;
+    return true;
+}
+
+bool validarHora(const char* hora) {
+    int hh, mm;
+    if (sscanf(hora, "%d:%d", &hh, &mm) != 2) return false;
+    if (hh < 0 || hh > 23 || mm < 0 || mm > 59) return false;
+    return true;
+}
+
+bool validarFloat(const char* str) {
+    char* endptr;
+    strtof(str, &endptr);
+    return *endptr == '\0' || isspace((unsigned char)*endptr);
+}
+
+
 voo* cadastrarVoo() {
     voo *v = (voo*)malloc(sizeof(voo));
     if (!v) {
         perror("Erro ao alocar memória para voo");
         exit(EXIT_FAILURE);
     }
+    char buffer[100];
 
     // Captura os dados do voo
     printf("Código do voo: ");
     scanf("%d", &v->codigo);
     getchar();
 
+    // Captura e valida a data do voo
     printf("Data do voo (dd/mm/aaaa): ");
-    fgets(v->data, 11, stdin);
-    v->data[strcspn(v->data, "\n")] = '\0';
+    fgets(buffer, sizeof(buffer), stdin);
+    buffer[strcspn(buffer, "\n")] = '\0';
+    if (!validarData(buffer)) {
+        printf("Data inválida. Retornando ao menu inicial...\n");
+        free(v);
+        return NULL;
+    }
+    strncpy(v->data, buffer, sizeof(v->data));
 
+    // Captura e valida a hora do voo
     printf("Hora do voo (hh:mm): ");
-    fgets(v->hora, 6, stdin);
-    v->hora[strcspn(v->hora, "\n")] = '\0';
+    fgets(buffer, sizeof(buffer), stdin);
+    buffer[strcspn(buffer, "\n")] = '\0';
+    if (!validarHora(buffer)) {
+        printf("Hora inválida. Retornando ao menu inicial...\n");
+        free(v);
+        return NULL;
+    }
+    strncpy(v->hora, buffer, sizeof(v->hora));
 
+    // Captura e valida a origem
     printf("Origem: ");
-    fgets(v->origem, 50, stdin);
-    v->origem[strcspn(v->origem, "\n")] = '\0';
+    fgets(buffer, sizeof(buffer), stdin);
+    buffer[strcspn(buffer, "\n")] = '\0';
+    if (strlen(buffer) < 1 || strlen(buffer) > 40) {
+        printf("Origem inválida. Deve ter entre 1 e 40 caracteres. Retornando ao menu inicial...\n");
+        free(v);
+        return NULL;
+    }
+    strncpy(v->origem, buffer, sizeof(v->origem));
 
+    // Captura e valida o destino
     printf("Destino: ");
-    fgets(v->destino, 50, stdin);
-    v->destino[strcspn(v->destino, "\n")] = '\0';
+    fgets(buffer, sizeof(buffer), stdin);
+    buffer[strcspn(buffer, "\n")] = '\0';
+    if (strlen(buffer) < 1 || strlen(buffer) > 40) {
+        printf("Destino inválido. Deve ter entre 1 e 40 caracteres. Retornando ao menu inicial...\n");
+        free(v);
+        return NULL;
+    }
+    strncpy(v->destino, buffer, sizeof(v->destino));
 
     printf("Código do avião: ");
     scanf("%d", &v->codigoAviao);
