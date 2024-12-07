@@ -130,12 +130,13 @@ void exibirTripulacao(const tripulacao *t) {
 }
 
 int ehNumeroPositivoT(const char *str) {
+    // Percorre cada caractere da string
     for (int i = 0; str[i] != '\0'; i++) {
-        if (!isdigit((unsigned char)str[i])) {
-            return 1;  // Nao e um numero valido
+        if (!isdigit(str[i])) {
+            return 0; // Retorna 0 se encontrar algo que não seja dígito
         }
     }
-    return 0;  // E um numero valido
+    return 1; // Retorna 1 se todos os caracteres forem dígitos
 }
 
 // Função para cadastrar um novo membro da tripulação
@@ -146,19 +147,32 @@ tripulacao* cadastrarTripulacao() {
     // Captura os dados do usuário
     printf("Código do membro da tripulação: ");
     while (1) {
-        fgets(buffer, TAM_BUFFER, stdin);
-        if (ehNumeroPositivoT(buffer)) { // Valida se é um número positivo
+    fgets(buffer, TAM_BUFFER, stdin);
+        
+        // Remover a quebra de linha no final da string
+        buffer[strcspn(buffer, "\n")] = '\0';
+
+        // Verifica se a entrada é um número positivo
+        if (ehNumeroPositivoT(buffer)) {
             codigo = atoi(buffer);
+            
+            // Verifica se o código é positivo
+            if (codigo <= 0) {
+                printf("Codigo invalido. Deve ser um numero positivo. Retornando ao menu inicial...\n");
+                return NULL;
+            }
+
             // Verifica se o código já existe
             if (verificarCodigoTripulacaoExistente(codigo)) {
-                printf("Código já existente. Retornando ao menu inicial...\n");
+                printf("Codigo ja existente. Retornando ao menu inicial...\n");
                 return NULL;
             } else {
-                break;
+                break; // Encerra o loop caso o código seja válido
             }
+        } else {
+            printf("Codigo invalido. Deve ser um numero positivo e unico. Retornando ao menu inicial...\n");
+            return NULL;
         }
-        printf("Código inválido. Deve ser um número positivo e único. Retornando ao menu inicial...\n");
-        return NULL;
     }
 
     printf("Nome do membro da tripulação: ");

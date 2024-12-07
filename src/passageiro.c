@@ -35,12 +35,13 @@ int verificarCodigoExistente(int codigo) {
 }
 // Funcao para verificar se uma string e um numero inteiro positivo
 int ehNumeroPositivo(const char *str) {
+    // Percorre cada caractere da string
     for (int i = 0; str[i] != '\0'; i++) {
-        if (!isdigit((unsigned char)str[i])) {
-            return 1;  // Nao e um numero valido
+        if (!isdigit(str[i])) {
+            return 0; // Retorna 0 se encontrar algo que não seja dígito
         }
     }
-    return 0;  // E um numero valido
+    return 1; // Retorna 1 se todos os caracteres forem dígitos
 }
 
 // Funcao para criar um passageiro
@@ -136,6 +137,8 @@ void salvarNoArquivoPassageiro(passageiro *p){
     }
     fwrite(p, sizeof(passageiro), 1, arquivo);
     printf("\nPESSOA SALVA NO ARQUIVO\n");
+
+    fclose(arquivo);
 }
 
 // Funcao para cadastrar um passageiro
@@ -147,18 +150,31 @@ passageiro* cadastrarPassageiro() {
     printf("Codigo do passageiro: ");
     while (1) {
         fgets(buffer, TAM_BUFFER, stdin);
+        
+        // Remover a quebra de linha no final da string
+        buffer[strcspn(buffer, "\n")] = '\0';
+
+        // Verifica se a entrada é um número positivo
         if (ehNumeroPositivo(buffer)) {
             codigo = atoi(buffer);
+            
+            // Verifica se o código é positivo
+            if (codigo <= 0) {
+                printf("Codigo invalido. Deve ser um numero positivo. Retornando ao menu inicial...\n");
+                return NULL;
+            }
+
             // Verifica se o código já existe
             if (verificarCodigoExistente(codigo)) {
                 printf("Codigo ja existente. Retornando ao menu inicial...\n");
                 return NULL;
             } else {
-                break;
+                break; // Encerra o loop caso o código seja válido
             }
+        } else {
+            printf("Codigo invalido. Deve ser um numero positivo e unico. Retornando ao menu inicial...\n");
+            return NULL;
         }
-        printf("Codigo invalido. Deve ser um numero positivo e unico. Retornando ao menu inicial...\n");
-        return NULL;
     }
 
     printf("Nome do passageiro: ");

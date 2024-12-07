@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <ctype.h>
 
+#define TAM_BUFFER 256
+
 int verificarCodigoVooExistente(int codigo) {
     FILE *arquivo = fopen("voos.dat", "rb");
     if (!arquivo) {
@@ -64,6 +66,15 @@ bool validarFloat(const char* str) {
     return *endptr == '\0' || isspace((unsigned char)*endptr);
 }
 
+int ehNumeroPositivoV(const char *str) {
+    // Percorre cada caractere da string
+    for (int i = 0; str[i] != '\0'; i++) {
+        if (!isdigit(str[i])) {
+            return 0; // Retorna 0 se encontrar algo que não seja dígito
+        }
+    }
+    return 1; // Retorna 1 se todos os caracteres forem dígitos
+}
 
 voo* cadastrarVoo() {
     voo *v = (voo*)malloc(sizeof(voo));
@@ -71,12 +82,26 @@ voo* cadastrarVoo() {
         perror("Erro ao alocar memória para voo");
         exit(EXIT_FAILURE);
     }
-    char buffer[100];
+    char buffer[TAM_BUFFER];
 
     // Captura os dados do voo
     printf("Código do voo: ");
-    scanf("%d", &v->codigo);
-    getchar();
+    while (1) {
+        fgets(buffer, TAM_BUFFER, stdin);
+        
+        // Remove a quebra de linha no final da string, caso exista
+        buffer[strcspn(buffer, "\n")] = '\0';
+
+        // Verifica se a entrada é um número positivo
+        if (ehNumeroPositivoV(buffer)) {
+            v->codigo = atoi(buffer);  // Atribui o valor de codigoVoo a v->codigo
+
+            // Você pode adicionar mais verificações aqui, se necessário
+            break; // Encerra o loop caso a entrada seja válida
+        } else {
+            printf("Código de voo inválido. Deve ser um número positivo. Tente novamente: ");
+        }
+    }
 
     // Captura e valida a data do voo
     printf("Data do voo (dd/mm/aaaa): ");

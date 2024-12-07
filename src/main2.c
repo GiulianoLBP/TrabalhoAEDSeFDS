@@ -76,10 +76,12 @@ int main() {
         }
 
         switch (opcao) {
-            case 1: {
-                // Cadastrar Passageiro
-                passageiro *novoPassageiro = cadastrarPassageiro();
+        case 1: {
+            // Cadastrar Passageiro
+            passageiro *novoPassageiro = cadastrarPassageiro();
 
+            // Verifica se o cadastro foi bem-sucedido (se novoPassageiro não for NULL)
+            if (novoPassageiro != NULL) {
                 // Redimensiona o array de passageiros e adiciona o novo passageiro
                 passageiros = realloc(passageiros, (quantidadePassageiros + 1) * sizeof(passageiro *));
                 if (!passageiros) {
@@ -90,12 +92,18 @@ int main() {
                 quantidadePassageiros++;
 
                 printf("Passageiro cadastrado com sucesso!\n");
-                break;
+            } else {
+                printf("Falha no cadastro do passageiro. Nenhuma alteração realizada.\n");
             }
-            case 2: {
-                // Cadastrar Tripulante
-                tripulacao *novoTripulante = cadastrarTripulacao();
+            break;
+        }
 
+        case 2: {
+            // Cadastrar Tripulante
+            tripulacao *novoTripulante = cadastrarTripulacao();
+
+            // Verifica se o cadastro foi bem-sucedido (se novoTripulante não for NULL)
+            if (novoTripulante != NULL) {
                 // Redimensiona o array de tripulantes e adiciona o novo tripulante
                 tripulantes = realloc(tripulantes, (quantidadeTripulacao + 1) * sizeof(tripulacao *));
                 if (!tripulantes) {
@@ -106,12 +114,18 @@ int main() {
                 quantidadeTripulacao++;
 
                 printf("Tripulante cadastrado com sucesso!\n");
-                break;
+            } else {
+                printf("Falha no cadastro do tripulante. Nenhuma alteração realizada.\n");
             }
-            case 3: {
-                // Cadastrar Voo
-                voo *novoVoo = cadastrarVoo();
+            break;
+        }
 
+        case 3: {
+            // Cadastrar Voo
+            voo *novoVoo = cadastrarVoo();
+
+            // Verifica se o cadastro foi bem-sucedido (se novoVoo não for NULL)
+            if (novoVoo != NULL) {
                 // Redimensiona o array de voos e adiciona o novo voo
                 voos = realloc(voos, (quantidadeVoos + 1) * sizeof(voo *));
                 if (!voos) {
@@ -122,8 +136,11 @@ int main() {
                 quantidadeVoos++;
 
                 printf("Voo cadastrado com sucesso!\n");
-                break;
+            } else {
+                printf("Falha no cadastro do voo. Nenhuma alteração realizada.\n");
             }
+            break;
+        }
             case 4: {
                 // Cadastrar Assento
                 assento *novoAssento = cadastrarAssento();
@@ -143,7 +160,6 @@ int main() {
             case 5: {
                 // Cadastrar Reserva
                 reserva *novaReserva = cadastrarReserva();
-
                 // Redimensiona o array de reservas e adiciona a nova reserva
                 reservas = realloc(reservas, (quantidadeReservas + 1) * sizeof(reserva *));
                 if (!reservas) {
@@ -152,14 +168,15 @@ int main() {
                 }
                 reservas[quantidadeReservas] = novaReserva;
                 quantidadeReservas++;
-                printf("%d",novaReserva->codigoPassageiro);
-                passageiroFidelidade(novaReserva->codigoPassageiro,&passageiros,quantidadePassageiros,1);
+                //printf("%d",novaReserva->codigoPassageiro);
+               // passageiroFidelidade(novaReserva->codigoPassageiro,&passageiros,quantidadePassageiros,1);
                 printf("Reserva realizada com sucesso!\n");
                 break;
             }
             case 6: {
                 // Exibir Passageiros
                 printf("\nLista de Passageiros:\n");
+                printf("%d",quantidadePassageiros);
                 for (int i = 0; i < quantidadePassageiros; i++) {
                     exibirPassageiro(passageiros[i]);
                 }
